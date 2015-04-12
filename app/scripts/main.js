@@ -1,39 +1,71 @@
-/* jshint devel:true */
-(function(){
-  var view = new Vue({
-    el: '.application',
-    data: {
-      page: 'classes',
-      repos: [ ],
-      repo: null,
-    },
-    methods: {
-      isPage: function(name){
-        return this.page === name;
-      },
-      repoByName: function(name){
-        return _.first(this.repos, { name: name });
-      },
-    }
-  });
+;(function(){
+  'use strict';
 
-  var repos = $.getJSON('apis/github/orgs/TheIronYard--Orlando/repos.json')
-    .done(function(data){
-      view.repos = data.filter(function(repo){
+  angular.module('tiy-gradebook', [ 'ui.router', 'restangular' ])
+    .config(function($stateProvider, $urlRouterProvider){
+        $stateProvider
+          .state('classes', {
+            url: '/',
+            templateUrl: 'views/classes.html',
+            controller: 'ClassList as org'
+          })
+          .state('class', {
+            url: '/class/:repo',
+            templateUrl: 'views/class.html',
+            controller: 'ClassDetail as class'
+          })
+        ; // END $stateProvider
+
+        //$urlRouterProvider.otherwise('/');
+    })
+    .config(function(RestangularProvider, API){
+      RestangularProvider.setBaseUrl(API.base);
+      RestangularProvider.setRequestSuffix('.json');
+    })
+    .constant('API', {
+      base: 'apis/github',
+      org: 'TheIronYard--Orlando',
+    })
+    .controller('ClassList', function(Restangular, API){
+      this.repos = Restangular.one('orgs', API.org).all('repos')
+        .getList().$object;
+
+      this.classes = function(repo){
         return repo.name.match(/^(FEE|ROR|iOS)--/);
-      }).reverse();
-    });
+      }
+    })
+    .controller('ClassDetail', function(Restangular, API, $stateParams){
+      var repo = Restangular
+        .one('repos', API.org)
+        .one($stateParams.repo)
 
-  page('/', function(context){
-    view.page = 'classes';
-  });
+      this.repo = repo.get().$object;
 
-  page('/class/:repo', function(context){
-    view.page = 'class';
+      this.milestones = repo.getList('milestones', {
+        state: 'all'
+      }).$object;
 
-    view.repo = context.params.repo;
-  });
+      var self = this;
 
-  page({ hashbang: true });
-
+      repo.getList('issues', {
+        state: 'all',
+        milestone: '*',
+      }).then(function(issues){
+        self.issues = _(issues)
+          .filter(function(issue){
+            return issue.labels.length;
+          })
+          .groupBy(function(issue){
+            return _.pluck(issue.labels, 'name').toString();
+          })
+        .value();
+      })
+    })
+    .controller('AssignmentList', function(){
+    })
+    .controller('AssignmentDetail', function(){
+    })
+    .controller('StudentList', function(){
+    })
+  ; // END module(tiy-gradebook)
 })();

@@ -27,35 +27,43 @@
       <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <div class="application container-fluid">
+    <div class="container-fluid" ng-app="tiy-gradebook">
       <header class="header-page">
         <h1> TIY Orlando Gradebook </h3>
       </header><!-- .header-page -->
 
-      <section class="section-page-main">
-        <template v-if="isPage('classes')">
-          <h3> Available Classes </h3>
-          <nav class="nav-repos list-group">
-            <a href="class/{{repo.name}}" class="list-group-item"
-              v-repeat="repo: repos">
-              <h4 class="list-group-item-heading">{{repo.name}}</h4>
-
-              Lorem ipsum dolor sit amet...
-            </a>
-          </nav><!-- .nav-repos -->
-        </template>
-        <template v-if="isPage('class')">
-          <h3> {{repoByName(repo).name}} </h3>
-          <ul class="list-group">
-            <li class="list-group-item" v-repeat="assn: milestones">
-              {{assn.name}}
-            </li>
-          </ul>
-        </template>
+      <section class="section-page-main" ui-view>
       </section><!-- .section-page-main -->
 
       <footer class="footer-page">
       </footer><!-- .footer-page -->
+
+      <script type="text/ng-template" id="views/classes.html">
+        <h3> Available Classes </h3>
+        <nav class="nav-repos list-group">
+          <a class="list-group-item" ui-sref="class({ repo: repo.name })"
+            ng-repeat="repo in org.repos | filter:org.classes">
+            <h4 class="list-group-item-heading">{{repo.name}}</h4>
+
+            Lorem ipsum dolor sit amet...
+          </a>
+        </nav><!-- .nav-repos -->
+      </script>
+      <script type="text/ng-template" id="views/class.html">
+        <h3> {{class.repo.name}} </h3>
+        <ul class="list-group">
+          <li class="list-group-item" ng-repeat="assn in class.milestones">
+            <h4 class="list-group-item-heading">{{assn.title}}</h4>
+
+            <div class="progress">
+              <div class="progress-bar progress-bar-success">complete</div>
+              <div class="progress-bar progress-bar-warning">not yet</div>
+              <div class="progress-bar progress-bar-danger">incomplete</div>
+            </div>
+          </li>
+        </ul>
+      </script>
+
     </div><!-- .container-fluid -->
 
     <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
@@ -71,9 +79,10 @@
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
     <script src="/bower_components/jquery/dist/jquery.js"></script>
-    <script src="/bower_components/vue/dist/vue.js"></script>
-    <script src="/bower_components/page/page.js"></script>
     <script src="/bower_components/lodash/lodash.js"></script>
+    <script src="/bower_components/angular/angular.js"></script>
+    <script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="/bower_components/restangular/dist/restangular.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
