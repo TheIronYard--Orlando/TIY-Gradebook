@@ -42,7 +42,7 @@
         <h3> Available Classes </h3>
         <nav class="nav-repos list-group">
           <a class="list-group-item" ui-sref="class({ repo: repo.name })"
-            ng-repeat="repo in org.repos | filter:org.classes">
+            ng-repeat="repo in org.repos">
             <h4 class="list-group-item-heading">{{repo.name}}</h4>
 
             Lorem ipsum dolor sit amet...
@@ -52,13 +52,17 @@
       <script type="text/ng-template" id="views/class.html">
         <h3> {{class.repo.name}} </h3>
         <ul class="list-group">
-          <li class="list-group-item" ng-repeat="assn in class.milestones">
+          <li class="list-group-item"
+              ng-repeat="assn in class.milestones">
             <h4 class="list-group-item-heading">{{assn.title}}</h4>
 
             <div class="progress">
-              <div class="progress-bar progress-bar-success">complete</div>
-              <div class="progress-bar progress-bar-warning">not yet</div>
-              <div class="progress-bar progress-bar-danger">incomplete</div>
+              <div ng-repeat="(color, label) in class.labels" class="progress-bar progress-bar-{{color}}"
+                ng-style="{
+                  width: class.percentOfType(assn.issues, label) + '%'
+                }" title="{{label}}"></div>
+              <div class="progress-bar"
+                style="width:{{class.percentOfType(assn.issues, 'none')}}%"></div>
             </div>
           </li>
         </ul>
