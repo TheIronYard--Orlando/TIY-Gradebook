@@ -19,15 +19,15 @@
         //$urlRouterProvider.otherwise('/');
     })
     .constant('API', {
-      base: 'apis/github',
-      //base: 'https://api.github.com/',
+      //base: 'apis/github', suffix: '.json',
+      base: 'https://api.github.com/',
       org: 'TheIronYard--Orlando',
     })
     .factory('Github', function(Restangular, API){
       return Restangular.withConfig(function(RestangularConfigurer){
         RestangularConfigurer
           .setBaseUrl(API.base)
-          .setRequestSuffix('.json')
+          .setRequestSuffix(API.suffix)
           .extendCollection('repos', function(repos){
             return _.filter(repos, function(repo){
               return repo.name.match(/^(FEE|ROR|iOS)--/);
@@ -69,7 +69,7 @@
       this.types = {
         danger: 'Incomplete',
         warning: 'Not Yet',
-        success: 'Accepted',
+        success: 'Great Effort',
       };
 
       this.percentOfType = function(issues, type){

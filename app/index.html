@@ -57,7 +57,7 @@
             <h4 class="list-group-item-heading">{{assn.title}}</h4>
 
             <div class="progress">
-              <div ng-repeat="(color, label) in class.labels" class="progress-bar progress-bar-{{color}}"
+              <div ng-repeat="(color, label) in class.types" class="progress-bar progress-bar-{{color}}"
                 ng-style="{
                   width: class.percentOfType(assn.issues, label) + '%'
                 }" title="{{label}}"></div>
