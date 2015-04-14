@@ -27,8 +27,8 @@
       <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-    <div class="container-fluid" ng-app="tiy-gradebook">
-      <header class="header-page">
+    <div class="container-fluid" ng-app="tiy-gradebook" ui-view>
+      <header class="header-page navbar">
         <h1> TIY Orlando Gradebook </h3>
       </header><!-- .header-page -->
 
@@ -41,14 +41,14 @@
       <script type="text/ng-template" id="views/classes.html">
         <h3> Available Classes </h3>
         <nav class="nav-repos list-group">
-          <a class="list-group-item" ui-sref="class({ repo: repo.name })"
+          <a class="list-group-item" ui-sref="detail({ repo: repo.name })"
             ng-repeat="repo in org.repos">
             <h4 class="list-group-item-heading">{{repo.name}}</h4>
 
             Lorem ipsum dolor sit amet...
-          </a>
+          </a><!-- .list-group-item -->
         </nav><!-- .nav-repos -->
-      </script>
+      </script><!-- #views/classes.html -->
       <script type="text/ng-template" id="views/class.html">
         <h3> {{class.repo.name}} </h3>
         <ul class="list-group">
@@ -57,16 +57,22 @@
             <h4 class="list-group-item-heading">{{assn.title}}</h4>
 
             <div class="progress">
-              <div ng-repeat="(color, label) in class.types" class="progress-bar progress-bar-{{color}}"
+              <div ng-repeat="(color, label) in class.types"
+                class="progress-bar progress-bar-{{color}}"
+                style="width: {{class.percentOfType(assn.issues, label)}}%"
+                title="{{label}}"></div>
+              <div class="progress-bar progress-bar-striped"
                 ng-style="{
-                  width: class.percentOfType(assn.issues, label) + '%'
-                }" title="{{label}}"></div>
-              <div class="progress-bar"
-                style="width:{{class.percentOfType(assn.issues, 'none')}}%"></div>
+                  width: class.percentOfType(assn.issues, 'none') + '%',
+                  'background-color': '#CCC'
+                }">
+                  ({{assn.issues.length}})
+                  {{class.percentOfType(assn.issues, 'none').toFixed(0)}}%
+              </div>
             </div>
           </li>
-        </ul>
-      </script>
+        </ul><!-- .list-group -->
+      </script><!-- #views/class.html -->
 
     </div><!-- .container-fluid -->
 
@@ -87,6 +93,7 @@
     <script src="/bower_components/angular/angular.js"></script>
     <script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
     <script src="/bower_components/restangular/dist/restangular.js"></script>
+    <script src="/bower_components/hello/dist/hello.all.min.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -108,5 +115,5 @@
         <!-- build:js scripts/main.js -->
         <script src="scripts/main.js"></script>
         <!-- endbuild -->
-</body>
+  </body>
 </html>

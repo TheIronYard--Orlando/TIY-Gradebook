@@ -2,26 +2,74 @@
   'use strict';
 
   angular.module('tiy-gradebook', [ 'ui.router', 'restangular' ])
+    .run(function($rootScope){
+      $rootScope.$on('$stateChangeError', function(){
+        console.log('$stateChangeError', arguments);
+      })
+    })
     .config(function($stateProvider, $urlRouterProvider){
-        $stateProvider
-          .state('classes', {
-            url: '/',
-            templateUrl: 'views/classes.html',
-            controller: 'ClassList as org'
-          })
-          .state('class', {
-            url: '/class/:repo',
-            templateUrl: 'views/class.html',
-            controller: 'ClassDetail as class'
-          })
-        ; // END $stateProvider
+      $stateProvider
+        .state('classes', {
+          abstract: true,
+          resolve: {
+            authd: function(Auth){
+              return Auth.isGuest() && Auth.login();
+            }
+          }
+        })
+        .state('classes.list', {
+          url: '/',
+          templateUrl: 'views/classes.html',
+          controller: 'ClassList as org'
+        })
+        .state('classes.detail', {
+          url: '/:repo',
+          templateUrl: 'views/class.html',
+          controller: 'ClassDetail as class'
+        })
+      ; // END $stateProvider
 
-        //$urlRouterProvider.otherwise('/');
+      $urlRouterProvider.otherwise('/');
     })
     .constant('API', {
       //base: 'apis/github', suffix: '.json',
       base: 'https://api.github.com/',
       org: 'TheIronYard--Orlando',
+    })
+    .factory('hello', function(){
+      return hello.init({
+        github: '57e761493a1d9a2f767a',
+      })('github');
+    })
+    .factory('Auth', function($q, hello, Github){
+      var user = { };
+
+      return {
+        isGuest: function(){
+          return !Boolean(user.id);
+        },
+        login: function(){
+          var deferred = $q.defer();
+
+          hello.login().then(function(response){
+            Github.setDefaultRequestParams({
+              access_token: response.authResponse.access_token
+            });
+
+            hello.api('me').then(function(json){
+              deferred.resolve(angular.extend(user, json));
+            });
+          });
+
+          return deferred.promise;
+        },
+        logout: function(){
+          return $q(hello.logout().then);
+        },
+        me: function(){
+          return user;
+        }
+      }; // END return
     })
     .factory('Github', function(Restangular, API){
       return Restangular.withConfig(function(RestangularConfigurer){
