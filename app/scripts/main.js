@@ -61,7 +61,7 @@
             });
           });
 
-          return deferred.promise;
+          return deferred.promise
         },
         logout: function(){
           return $q(hello.logout().then);
@@ -85,6 +85,11 @@
             return angular.extend(issues, _.groupBy(issues, function(issue){
               return _.pluck(issue.labels, 'name').toString() || 'none';
             }), { total: issues.length });
+          })
+          .extendCollection('labels', function(labels){
+            return _.filter(labels, function(label){
+              return label.name !== 'Attendance';
+            });
           })
         ; // END RestangularConfigurer
       });
@@ -119,6 +124,8 @@
         warning: 'Not Yet',
         success: 'Great Effort',
       };
+
+      this.labels = repo.getList('labels').$object;
 
       this.percentOfType = function(issues, type){
         if ( !issues || !issues[type] ) return 0;
