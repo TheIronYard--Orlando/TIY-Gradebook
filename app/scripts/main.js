@@ -122,12 +122,6 @@
         state: 'all'
       }).$object;
 
-      this.types = {
-        danger: 'Incomplete',
-        warning: 'Not Yet',
-        success: 'Great Effort',
-      };
-
       this.labels = repo.getList('labels').$object;
 
       this.percentOfType = function(issues, type){
@@ -135,7 +129,7 @@
           return 0;
         }
 
-        return issues[type].length / issues.length * 100;
+        return (issues[type].length / issues.length * 100);
       };
 
     })

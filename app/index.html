@@ -62,7 +62,7 @@
                   width: class.percentOfType(assn.issues, label.name) + '%',
                   backgroundColor: '#' + label.color
                 }" ng-attr-title="{{label.name}}">
-                {{class.percentOfType(assn.issues, label.name)}}%
+                {{class.percentOfType(assn.issues, label.name).toFixed(0)}}%
                 ({{assn.issues[label.name].length}})
               </div><!-- .progress-bar -->
               <div class="progress-bar progress-bar-striped"
@@ -70,8 +70,8 @@
                   width: class.percentOfType(assn.issues, 'none') + '%',
                   backgroundColor: '#CCC'
                 }">
-                  ({{assn.issues['none'].length}})
                   {{class.percentOfType(assn.issues, 'none').toFixed(0)}}%
+                  ({{assn.issues['none'].length}})
               </div>
             </div>
           </li>
