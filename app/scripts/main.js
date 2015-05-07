@@ -5,7 +5,7 @@
     .run(function($rootScope){
       $rootScope.$on('$stateChangeError', function(){
         console.log('$stateChangeError', arguments);
-      })
+      });
     })
     .config(function($stateProvider, $urlRouterProvider){
       $stateProvider
@@ -53,7 +53,7 @@
 
           hello.login().then(function(response){
             Github.setDefaultRequestParams({
-              access_token: response.authResponse.access_token
+              'access_token': response.authResponse.access_token
             });
 
             hello.api('me').then(function(json){
@@ -61,7 +61,7 @@
             });
           });
 
-          return deferred.promise
+          return deferred.promise;
         },
         logout: function(){
           return $q(hello.logout().then);
@@ -80,6 +80,11 @@
             return _.filter(repos, function(repo){
               return repo.name.match(/^(FEE|ROR|iOS)--/);
             });
+          })
+          .extendModel('repos', function(repo){
+            repo.labels = repo.getList('labels').$object;
+
+            return repo;
           })
           .extendCollection('issues', function(issues){
             return angular.extend(issues, _.groupBy(issues, function(issue){
@@ -101,7 +106,7 @@
     .controller('ClassDetail', function(Github, API, $stateParams){
       var repo = Github
         .one('repos', API.org)
-        .one($stateParams.repo)
+        .one($stateParams.repo);
 
       this.repo = repo.get().$object;
 
@@ -117,8 +122,6 @@
         state: 'all'
       }).$object;
 
-      var self = this;
-
       this.types = {
         danger: 'Incomplete',
         warning: 'Not Yet',
@@ -128,7 +131,9 @@
       this.labels = repo.getList('labels').$object;
 
       this.percentOfType = function(issues, type){
-        if ( !issues || !issues[type] ) return 0;
+        if ( !issues || !issues[type] ){
+          return 0;
+        }
 
         return issues[type].length / issues.length * 100;
       };
