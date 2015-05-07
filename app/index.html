@@ -41,7 +41,7 @@
       <script type="text/ng-template" id="views/classes.html">
         <h3> Available Classes </h3>
         <nav class="nav-repos list-group">
-          <a class="list-group-item" ui-sref="detail({ repo: repo.name })"
+          <a class="list-group-item" ui-sref="classes.detail({ repo: repo.name })"
             ng-repeat="repo in org.repos">
             <h4 class="list-group-item-heading">{{repo.name}}</h4>
 
@@ -57,16 +57,20 @@
             <h4 class="list-group-item-heading">{{assn.title}}</h4>
 
             <div class="progress">
-              <div ng-repeat="(color, label) in class.types"
-                class="progress-bar progress-bar-{{color}}"
-                style="width: {{class.percentOfType(assn.issues, label)}}%"
-                title="{{label}}"></div>
+              <div class="progress-bar"
+                ng-repeat="label in class.labels" ng-style="{
+                  width: class.percentOfType(assn.issues, label.name) + '%',
+                  backgroundColor: '#' + label.color
+                }" ng-attr-title="{{label.name}}">
+                {{class.percentOfType(assn.issues, label.name)}}%
+                ({{assn.issues[label.name].length}})
+              </div><!-- .progress-bar -->
               <div class="progress-bar progress-bar-striped"
                 ng-style="{
                   width: class.percentOfType(assn.issues, 'none') + '%',
-                  'background-color': '#CCC'
+                  backgroundColor: '#CCC'
                 }">
-                  ({{assn.issues.length}})
+                  ({{assn.issues['none'].length}})
                   {{class.percentOfType(assn.issues, 'none').toFixed(0)}}%
               </div>
             </div>
