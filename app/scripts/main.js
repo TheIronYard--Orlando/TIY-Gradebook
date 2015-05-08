@@ -76,15 +76,18 @@
         RestangularConfigurer
           .setBaseUrl(API.base)
           .setRequestSuffix(API.suffix)
-          .extendCollection('repos', function(repos){
-            return _.filter(repos, function(repo){
-              return repo.name.match(/^(FEE|ROR|iOS)--/);
-            });
-          })
-          .extendModel('repos', function(repo){
-            repo.labels = repo.getList('labels').$object;
+          .extendCollection('classes', function(repos){
+            // https://github.com/mgonto/restangular/issues/1011
+            if ( !repos.fromServer ) {
+              return repos;
+            }
 
-            return repo;
+            return _(repos)
+              .filter(function(repo){
+                return repo.name.match(/(FEE|ROR|iOS)/);
+              })
+              .sortByOrder('updated_at', false)
+            .value();
           })
           .extendCollection('issues', function(issues){
             return angular.extend(issues, _.groupBy(issues, function(issue){
@@ -99,10 +102,14 @@
         ; // END RestangularConfigurer
       });
     }) // END factory(Github)
+
     .controller('ClassList', function(Github, API){
-      this.repos = Github.one('orgs', API.org)
-        .getList('repos').$object;
-    })
+      this.repos = Github
+        // FIXME: Gotta be a way to configure this, right?
+        .allUrl('classes', API.base + 'orgs/' + API.org + '/repos')
+      .getList().$object;
+    }) // END controller(ClassList)
+
     .controller('ClassDetail', function(Github, API, $stateParams){
       var repo = Github
         .one('repos', API.org)
