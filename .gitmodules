@@ -1,0 +1,4 @@
+[submodule "dist"]
+	path = dist
+	url = git://github.com/TheIronYard--Orlando/TIY-Gradebook.git
+	branch = gh-pages
