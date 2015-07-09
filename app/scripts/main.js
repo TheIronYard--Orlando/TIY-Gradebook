@@ -32,9 +32,20 @@
       $urlRouterProvider.otherwise('/');
     })
     .constant('API', {
-      //base: 'apis/github', suffix: '.json',
-      base: 'https://api.github.com/',
-      org: 'TheIronYard--Orlando',
+      github: {
+        base: 'apis/github/', suffix: '.json',
+        //base: 'https://api.github.com/',
+        org: 'TheIronYard--Orlando',
+      },
+      firebase: {
+        base: 'https://tiy-gradebook.firebaseio.com'
+      }
+    })
+    .factory('Firebase', function(API){
+      return new Firebase(API.firebase.base);
+    })
+    .decorator('$firebaseAuth', function($delegate, Firebase){
+      return $delegate(Firebase);
     })
     .factory('hello', function(){
       return hello.init({
@@ -74,8 +85,8 @@
     .factory('Github', function(Restangular, API){
       return Restangular.withConfig(function(RestangularConfigurer){
         RestangularConfigurer
-          .setBaseUrl(API.base)
-          .setRequestSuffix(API.suffix)
+          .setBaseUrl(API.github.base)
+          .setRequestSuffix(API.github.suffix)
           .extendCollection('classes', function(repos){
             // https://github.com/mgonto/restangular/issues/1011
             if ( !repos.fromServer ) {
@@ -106,13 +117,13 @@
     .controller('ClassList', function(Github, API){
       this.repos = Github
         // FIXME: Gotta be a way to configure this, right?
-        .allUrl('classes', API.base + 'orgs/' + API.org + '/repos')
+        .allUrl('classes', API.github.base + 'orgs/' + API.github.org + '/repos')
       .getList().$object;
     }) // END controller(ClassList)
 
     .controller('ClassDetail', function(Github, API, $stateParams){
       var repo = Github
-        .one('repos', API.org)
+        .one('repos', API.github.org)
         .one($stateParams.repo);
 
       this.repo = repo.get().$object;
