@@ -21,7 +21,9 @@
           abstract: true,
           resolve: {
             User: function(Auth){
-              return Auth.required();
+              return Auth.required().then(function(){
+                return Auth.me();
+              });
             }
           }
         })
