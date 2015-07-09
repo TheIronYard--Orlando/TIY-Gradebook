@@ -2,18 +2,25 @@
   'use strict';
 
   angular.module('tiy-gradebook', [ 'ui.router', 'restangular', 'firebase' ])
-    .run(function($rootScope){
-      $rootScope.$on('$stateChangeError', function(){
-        console.log('$stateChangeError', arguments);
+    .run(function($rootScope, $state){
+      $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error){
+         if ( error === 'AUTH_REQUIRED' ){
+           return $state.go('login');
+         }
       });
     })
     .config(function($stateProvider, $urlRouterProvider){
       $stateProvider
+        .state('login', {
+          templateUrl: 'views/login.html',
+          controller: 'LoginController',
+          controllerAs: 'auth'
+        })
         .state('classes', {
           abstract: true,
           resolve: {
-            authd: function(Auth){
-              return Auth.isGuest() && Auth.login();
+            User: function(Auth){
+              return Auth.required();
             }
           }
         })
@@ -78,7 +85,7 @@
         me: function(){
           return Github.one('user').get();
         }
-      }; // END return
+      }
     })
     .factory('Github', function(Restangular, API){
       return Restangular.withConfig(function(RestangularConfigurer){
@@ -112,6 +119,11 @@
       });
     }) // END factory(Github)
 
+    .controller('LoginController', function(Auth){
+      this.login = function(){
+        Auth.login();
+      };
+    })
     .controller('ClassList', function(Github, API){
       this.repos = Github
         // FIXME: Gotta be a way to configure this, right?
