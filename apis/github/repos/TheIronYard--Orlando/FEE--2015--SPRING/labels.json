@@ -1,0 +1,27 @@
+[
+  {
+    "url": "https://api.github.com/repos/TheIronYard--Orlando/FEE--2015--SPRING/labels/Attendance",
+    "name": "Attendance",
+    "color": "c7def8"
+  },
+  {
+    "url": "https://api.github.com/repos/TheIronYard--Orlando/FEE--2015--SPRING/labels/Great%20Effort",
+    "name": "Great Effort",
+    "color": "009800"
+  },
+  {
+    "url": "https://api.github.com/repos/TheIronYard--Orlando/FEE--2015--SPRING/labels/Not%20Yet",
+    "name": "Not Yet",
+    "color": "fbca04"
+  },
+  {
+    "url": "https://api.github.com/repos/TheIronYard--Orlando/FEE--2015--SPRING/labels/Incomplete",
+    "name": "Incomplete",
+    "color": "e11d21"
+  },
+  {
+    "url": "https://api.github.com/repos/TheIronYard--Orlando/FEE--2015--SPRING/labels/Ready%20For%20Review",
+    "name": "Ready For Review",
+    "color": "0052cc"
+  }
+]
