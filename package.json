@@ -28,7 +28,7 @@
     "wiredep": "^2.2.2"
   },
   "name": "TIY-Gradebook",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "gulpfile.js",
   "directories": {
     "test": "test"
