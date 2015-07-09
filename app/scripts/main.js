@@ -1,15 +1,16 @@
+/*global Firebase*/
 ;(function(){
   'use strict';
 
   angular.module('tiy-gradebook', [ 'ui.router', 'restangular', 'firebase' ])
     .run(function($rootScope, $state){
       $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error){
-         if ( error === 'AUTH_REQUIRED' ){
-           event.preventDefault();
-           return $state.go('login');
-         }
+        if ( error === 'AUTH_REQUIRED' ){
+          event.preventDefault();
+          return $state.go('login');
+        }
       });
-    })
+    }) // END run(redirect to login)
     .config(function($stateProvider, $urlRouterProvider){
       $stateProvider
         .state('login', {
@@ -28,7 +29,7 @@
               });
             }
           }
-        })
+        }) // END state(classes)
         .state('classes.list', {
           url: '/',
           templateUrl: 'views/classes.html',
@@ -42,7 +43,7 @@
       ; // END $stateProvider
 
       $urlRouterProvider.otherwise('/');
-    })
+    }) // END config($stateProvider)
     .constant('API', {
       github: {
         // TODO: Refactor to `gulp-ng-config` https://www.npmjs.com/package/gulp-ng-config
@@ -53,13 +54,9 @@
       firebase: {
         base: 'https://tiy-gradebook.firebaseio.com'
       }
-    })
-    /*global Firebase*/
+    }) // END constant(API)
     .factory('Firebase', function(API){
       return new Firebase(API.firebase.base);
-    })
-    .decorator('$firebaseAuth', function($delegate, Firebase){
-      return $delegate(Firebase);
     })
     .factory('Auth', function($q, $firebaseAuth, Github){
       /**
@@ -149,29 +146,26 @@
         ; // END RestangularConfigurer
       });
     }) // END factory(Github)
-
     .controller('Login', function(Auth, $state){
       this.login = function(){
         Auth.login().then(function(){
           $state.go('classes.list');
         });
       };
-    })
+    }) // END controller(Login)
     .controller('Classes', function(Auth, $state){
       this.logout = function(){
         Auth.logout().then(function(){
           $state.go('login');
         });
       };
-    }) // END controller(Main)
-
+    }) // END controller(Classes)
     .controller('ClassList', function(Github, API){
       this.repos = Github
         // FIXME: Gotta be a way to configure this, right?
         .allUrl('classes', API.github.base + 'orgs/' + API.github.org + '/repos')
       .getList().$object;
     }) // END controller(ClassList)
-
     .controller('ClassDetail', function(Github, API, $stateParams){
       var repo = Github
         .one('repos', API.github.org)
@@ -201,12 +195,13 @@
         return (issues[type].length / issues.length * 100);
       };
 
-    })
-    .controller('AssignmentList', function(){
-    })
-    .controller('AssignmentDetail', function(){
-    })
-    .controller('StudentList', function(){
+    }) // END controller(ClassDetail)
+    .controller('AssignmentList', function(){ })
+    .controller('AssignmentDetail', function(){ })
+    .controller('StudentList', function(){ })
+
+    .decorator('$firebaseAuth', /*@ngInject*/ function($delegate, Firebase){
+      return $delegate(Firebase);
     })
   ; // END module(tiy-gradebook)
 })();
