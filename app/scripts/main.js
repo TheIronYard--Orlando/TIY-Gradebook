@@ -1,7 +1,7 @@
 ;(function(){
   'use strict';
 
-  angular.module('tiy-gradebook', [ 'ui.router', 'restangular' ])
+  angular.module('tiy-gradebook', [ 'ui.router', 'restangular', 'firebase' ])
     .run(function($rootScope){
       $rootScope.$on('$stateChangeError', function(){
         console.log('$stateChangeError', arguments);
