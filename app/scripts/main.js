@@ -58,12 +58,7 @@
     })
     .factory('Auth', function($q, $firebaseAuth, Github){
       $firebaseAuth.$onAuth(function(auth){
-        console.log('onAuth', auth);
-        if ( !auth ) return;
-
-        Github.setDefaultHeaders({
-          Authorization: 'token ' + auth.github.accessToken
-        });
+        addAccessTokenFromAuth(auth);
       });
 
       return {
@@ -83,12 +78,32 @@
           return $q.when($firebaseAuth.$unauth());
         },
         required: function(){
-          return $firebaseAuth.$requireAuth();
+          return $firebaseAuth.$requireAuth()
+            .then(addAccessTokenFromAuth);
         },
         me: function(){
           return this.isAuthd() && Github.one('user').get();
         }
+      } // END return
+
+      /**
+       * @param {String} token from Github OAuth dance
+       * @return undefined
+       */
+      function addAuthHeader(token){
+        Github.setDefaultHeaders(token && {
+          Authorization: 'token ' + token
+        } || { });
       }
+
+      function extractAccessToken(auth){
+        return auth && auth.github && auth.github.accessToken;
+      }
+
+      function addAccessTokenFromAuth(auth){
+        addAuthHeader(extractAccessToken(auth));
+      }
+
     })
     .factory('Github', function(Restangular, API){
       return Restangular.withConfig(function(RestangularConfigurer){
