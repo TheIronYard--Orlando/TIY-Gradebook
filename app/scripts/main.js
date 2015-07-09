@@ -54,6 +54,7 @@
         base: 'https://tiy-gradebook.firebaseio.com'
       }
     })
+    /*global Firebase*/
     .factory('Firebase', function(API){
       return new Firebase(API.firebase.base);
     })
@@ -61,6 +62,33 @@
       return $delegate(Firebase);
     })
     .factory('Auth', function($q, $firebaseAuth, Github){
+      /**
+       * @param {String} token from Github OAuth dance
+       * @return undefined
+       */
+      function addAuthHeader(token){
+        Github.setDefaultHeaders(token && {
+          Authorization: 'token ' + token
+        } || { });
+      }
+
+      /**
+       * @param {Object} auth object from Firebase
+       * @return undefined|String access token from Github
+       */
+      function extractAccessToken(auth){
+        return auth && auth.github && auth.github.accessToken;
+      }
+
+      /**
+       * @param {Object} auth object from Firebase
+       * @return undefined
+       */
+      function addAccessTokenFromAuth(auth){
+        addAuthHeader(extractAccessToken(auth));
+      }
+
+      // Add the `Authorization` header for Github requests...
       $firebaseAuth.$onAuth(function(auth){
         addAccessTokenFromAuth(auth);
       });
@@ -88,27 +116,8 @@
         me: function(){
           return this.isAuthd() && Github.one('user').get();
         }
-      } // END return
-
-      /**
-       * @param {String} token from Github OAuth dance
-       * @return undefined
-       */
-      function addAuthHeader(token){
-        Github.setDefaultHeaders(token && {
-          Authorization: 'token ' + token
-        } || { });
-      }
-
-      function extractAccessToken(auth){
-        return auth && auth.github && auth.github.accessToken;
-      }
-
-      function addAccessTokenFromAuth(auth){
-        addAuthHeader(extractAccessToken(auth));
-      }
-
-    })
+      }; // END return
+    }) // END factory(Auth)
     .factory('Github', function(Restangular, API){
       return Restangular.withConfig(function(RestangularConfigurer){
         RestangularConfigurer
