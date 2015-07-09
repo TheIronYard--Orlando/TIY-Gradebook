@@ -1,19 +1,31 @@
 ;(function(){
   'use strict';
 
-  angular.module('tiy-gradebook', [ 'ui.router', 'restangular' ])
-    .run(function($rootScope){
-      $rootScope.$on('$stateChangeError', function(){
-        console.log('$stateChangeError', arguments);
+  angular.module('tiy-gradebook', [ 'ui.router', 'restangular', 'firebase' ])
+    .run(function($rootScope, $state){
+      $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error){
+         if ( error === 'AUTH_REQUIRED' ){
+           event.preventDefault();
+           return $state.go('login');
+         }
       });
     })
     .config(function($stateProvider, $urlRouterProvider){
       $stateProvider
+        .state('login', {
+          templateUrl: 'views/login.html',
+          controller: 'Login',
+          controllerAs: 'app'
+        })
         .state('classes', {
           abstract: true,
+          controller: 'Classes',
+          controllerAs: 'app',
           resolve: {
-            authd: function(Auth){
-              return Auth.isGuest() && Auth.login();
+            User: function(Auth){
+              return Auth.required().then(function(){
+                return Auth.me();
+              });
             }
           }
         })
@@ -32,50 +44,76 @@
       $urlRouterProvider.otherwise('/');
     })
     .constant('API', {
-      //base: 'apis/github', suffix: '.json',
-      base: 'https://api.github.com/',
-      org: 'TheIronYard--Orlando',
+      github: {
+        // TODO: Refactor to `gulp-ng-config` https://www.npmjs.com/package/gulp-ng-config
+        //base: 'apis/github/', suffix: '.json',
+        base: 'https://api.github.com/',
+        org: 'TheIronYard--Orlando',
+      },
+      firebase: {
+        base: 'https://tiy-gradebook.firebaseio.com'
+      }
     })
-    .factory('hello', function(){
-      return hello.init({
-        github: '57e761493a1d9a2f767a',
-      })('github');
+    .factory('Firebase', function(API){
+      return new Firebase(API.firebase.base);
     })
-    .factory('Auth', function($q, hello, Github){
-      var user = { };
+    .decorator('$firebaseAuth', function($delegate, Firebase){
+      return $delegate(Firebase);
+    })
+    .factory('Auth', function($q, $firebaseAuth, Github){
+      $firebaseAuth.$onAuth(function(auth){
+        addAccessTokenFromAuth(auth);
+      });
 
       return {
-        isGuest: function(){
-          return !Boolean(user.id);
+        isAuthd: function(){
+          return !!$firebaseAuth.$getAuth();
         },
         login: function(){
-          var deferred = $q.defer();
+          var self = this;
 
-          hello.login().then(function(response){
-            Github.setDefaultRequestParams({
-              'access_token': response.authResponse.access_token
+          return $firebaseAuth.$authWithOAuthPopup('github')
+            .then(function(){
+              return self.me();
             });
-
-            hello.api('me').then(function(json){
-              deferred.resolve(angular.extend(user, json));
-            });
-          });
-
-          return deferred.promise;
         },
         logout: function(){
-          return $q(hello.logout().then);
+          // Y U NO GIVE PROMISE $unauth!?
+          return $q.when($firebaseAuth.$unauth());
+        },
+        required: function(){
+          return $firebaseAuth.$requireAuth()
+            .then(addAccessTokenFromAuth);
         },
         me: function(){
-          return user;
+          return this.isAuthd() && Github.one('user').get();
         }
-      }; // END return
+      } // END return
+
+      /**
+       * @param {String} token from Github OAuth dance
+       * @return undefined
+       */
+      function addAuthHeader(token){
+        Github.setDefaultHeaders(token && {
+          Authorization: 'token ' + token
+        } || { });
+      }
+
+      function extractAccessToken(auth){
+        return auth && auth.github && auth.github.accessToken;
+      }
+
+      function addAccessTokenFromAuth(auth){
+        addAuthHeader(extractAccessToken(auth));
+      }
+
     })
     .factory('Github', function(Restangular, API){
       return Restangular.withConfig(function(RestangularConfigurer){
         RestangularConfigurer
-          .setBaseUrl(API.base)
-          .setRequestSuffix(API.suffix)
+          .setBaseUrl(API.github.base)
+          .setRequestSuffix(API.github.suffix)
           .extendCollection('classes', function(repos){
             // https://github.com/mgonto/restangular/issues/1011
             if ( !repos.fromServer ) {
@@ -103,16 +141,31 @@
       });
     }) // END factory(Github)
 
+    .controller('Login', function(Auth, $state){
+      this.login = function(){
+        Auth.login().then(function(){
+          $state.go('classes.list');
+        });
+      };
+    })
+    .controller('Classes', function(Auth, $state){
+      this.logout = function(){
+        Auth.logout().then(function(){
+          $state.go('login');
+        });
+      };
+    }) // END controller(Main)
+
     .controller('ClassList', function(Github, API){
       this.repos = Github
         // FIXME: Gotta be a way to configure this, right?
-        .allUrl('classes', API.base + 'orgs/' + API.org + '/repos')
+        .allUrl('classes', API.github.base + 'orgs/' + API.github.org + '/repos')
       .getList().$object;
     }) // END controller(ClassList)
 
     .controller('ClassDetail', function(Github, API, $stateParams){
       var repo = Github
-        .one('repos', API.org)
+        .one('repos', API.github.org)
         .one($stateParams.repo);
 
       this.repo = repo.get().$object;
