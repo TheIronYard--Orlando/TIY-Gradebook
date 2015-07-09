@@ -14,11 +14,13 @@
       $stateProvider
         .state('login', {
           templateUrl: 'views/login.html',
-          controller: 'LoginController',
-          controllerAs: 'auth'
+          controller: 'Login',
+          controllerAs: 'app'
         })
         .state('classes', {
           abstract: true,
+          controller: 'Classes',
+          controllerAs: 'app',
           resolve: {
             User: function(Auth){
               return Auth.required().then(function(){
@@ -139,11 +141,21 @@
       });
     }) // END factory(Github)
 
-    .controller('LoginController', function(Auth){
+    .controller('Login', function(Auth, $state){
       this.login = function(){
-        Auth.login();
+        Auth.login().then(function(){
+          $state.go('classes.list');
+        });
       };
     })
+    .controller('Classes', function(Auth, $state){
+      this.logout = function(){
+        Auth.logout().then(function(){
+          $state.go('login');
+        });
+      };
+    }) // END controller(Main)
+
     .controller('ClassList', function(Github, API){
       this.repos = Github
         // FIXME: Gotta be a way to configure this, right?
