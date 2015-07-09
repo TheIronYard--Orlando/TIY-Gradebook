@@ -40,8 +40,9 @@
     })
     .constant('API', {
       github: {
-        base: 'apis/github/', suffix: '.json',
-        //base: 'https://api.github.com/',
+        // TODO: Refactor to `gulp-ng-config` https://www.npmjs.com/package/gulp-ng-config
+        //base: 'apis/github/', suffix: '.json',
+        base: 'https://api.github.com/',
         org: 'TheIronYard--Orlando',
       },
       firebase: {
