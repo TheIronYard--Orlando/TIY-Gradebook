@@ -56,7 +56,7 @@
     .decorator('$firebaseAuth', function($delegate, Firebase){
       return $delegate(Firebase);
     })
-    .factory('Auth', function($firebaseAuth, Github){
+    .factory('Auth', function($q, $firebaseAuth, Github){
       $firebaseAuth.$onAuth(function(auth){
         console.log('onAuth', auth);
         if ( !auth ) return;
@@ -67,6 +67,9 @@
       });
 
       return {
+        isAuthd: function(){
+          return !!$firebaseAuth.$getAuth();
+        },
         login: function(){
           var self = this;
 
@@ -76,16 +79,14 @@
             });
         },
         logout: function(){
-          return $firebaseAuth.$unauth()
-            .then(function(){
-              return self.me();
-            });
+          // Y U NO GIVE PROMISE $unauth!?
+          return $q.when($firebaseAuth.$unauth());
         },
         required: function(){
           return $firebaseAuth.$requireAuth();
         },
         me: function(){
-          return Github.one('user').get();
+          return this.isAuthd() && Github.one('user').get();
         }
       }
     })
