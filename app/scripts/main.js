@@ -47,38 +47,36 @@
     .decorator('$firebaseAuth', function($delegate, Firebase){
       return $delegate(Firebase);
     })
-    .factory('hello', function(){
-      return hello.init({
-        github: '57e761493a1d9a2f767a',
-      })('github');
-    })
-    .factory('Auth', function($q, hello, Github){
-      var user = { };
+    .factory('Auth', function($firebaseAuth, Github){
+      $firebaseAuth.$onAuth(function(auth){
+        console.log('onAuth', auth);
+        if ( !auth ) return;
+
+        Github.setDefaultHeaders({
+          Authorization: 'token ' + auth.github.accessToken
+        });
+      });
 
       return {
-        isGuest: function(){
-          return !Boolean(user.id);
-        },
         login: function(){
-          var deferred = $q.defer();
+          var self = this;
 
-          hello.login().then(function(response){
-            Github.setDefaultRequestParams({
-              'access_token': response.authResponse.access_token
+          return $firebaseAuth.$authWithOAuthPopup('github')
+            .then(function(){
+              return self.me();
             });
-
-            hello.api('me').then(function(json){
-              deferred.resolve(angular.extend(user, json));
-            });
-          });
-
-          return deferred.promise;
         },
         logout: function(){
-          return $q(hello.logout().then);
+          return $firebaseAuth.$unauth()
+            .then(function(){
+              return self.me();
+            });
+        },
+        required: function(){
+          return $firebaseAuth.$requireAuth();
         },
         me: function(){
-          return user;
+          return Github.one('user').get();
         }
       }; // END return
     })
