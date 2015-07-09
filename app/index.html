@@ -30,6 +30,10 @@
     <main class="container-fluid" ng-app="tiy-gradebook" ui-view>
       <header class="header-page navbar">
         <h1> TIY Orlando Gradebook </h3>
+
+        <nav class="pull-right">
+          <button class="btn btn-danger btn-small" ng-click="app.logout()">Logout</button>
+        </nav>
       </header><!-- .header-page -->
 
       <section class="section-page-main" ui-view>
@@ -43,7 +47,7 @@
           <h1> TIY-Gradebook <br>
             <small>The Iron Yard -- Orlando</small>
           </h1>
-          <button class="btn btn-success btn-lg" ng-click="auth.login()">
+          <button class="btn btn-success btn-lg" ng-click="app.login()">
             Login with <span>Github</span>
           </button>
         </div><!-- .jumbotron -->
