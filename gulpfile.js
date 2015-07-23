@@ -36,7 +36,16 @@ function jshint(files) {
 gulp.task('jshint', jshint('app/scripts/**/*.js'));
 gulp.task('jshint:test', jshint('test/spec/**/*.js'));
 
-gulp.task('html', ['styles'], function () {
+gulp.task('inject', function(){
+  var sources = gulp.src('app/**/*.js')
+        .pipe($.angularFilesort());
+
+  gulp.src('app/*.html')
+    .pipe($.inject(sources, { relative: true }))
+    .pipe(gulp.dest('app/'));
+});
+
+gulp.task('html', ['styles', 'inject'], function () {
   var assets = $.useref.assets({searchPath: ['.tmp', 'app', '.']});
 
   return gulp.src('app/*.html')
@@ -83,7 +92,7 @@ gulp.task('clean', function () {
   require('del')(['.tmp', 'dist/**/{*,.*}', '!dist/.git']);
 });
 
-gulp.task('serve', ['styles', 'fonts'], function () {
+gulp.task('serve', ['inject', 'styles', 'fonts'], function () {
   browserSync({
     notify: false,
     port: 9000,
