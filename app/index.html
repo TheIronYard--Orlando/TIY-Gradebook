@@ -74,11 +74,34 @@
         </ul><!-- .nav-repos -->
       </script><!-- #views/classes.html -->
       <script type="text/ng-template" id="views/class.html">
+        <ol class="breadcrumb">
+          <li> <a ui-sref="classes.list">Classes</a>
+          <li class="active"> {{class.repo.name}}
+        </ol>
+
+        <nav class="pull-right">
+          <a rel="external" href="{{class.repo.html_url}}" class="btn btn-default">Github</a>
+          <a rel="external" href="{{class.repo.html_url}}/pulls" class="btn btn-default">Pull Requests</a>
+          <a rel="external" href="{{class.repo.html_url}}/labels/Attendance" class="btn btn-info">Attendance</a>
+        </nav>
+
         <h3> {{class.repo.name}} </h3>
+
+        <p class="clearfix"> <hr> </p>
+
         <ul class="list-group">
           <li class="list-group-item"
               ng-repeat="assn in class.milestones">
-            <h4 class="list-group-item-heading">{{assn.title}}</h4>
+            <nav class="pull-right">
+              <a class="btn btn-default" href="{{assn.html_url}}">All Open Submissions</a>
+            </nav>
+
+            <h4 class="list-group-item-heading">
+              {{assn.title}}
+              <!-- FIXME: Should this be a link to something? -->
+            </h4>
+
+            <p class="clearfix"> <hr> </p>
 
             <div class="progress">
               <div class="progress-bar"
