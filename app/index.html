@@ -104,22 +104,25 @@
             <p class="clearfix"> <hr> </p>
 
             <div class="progress">
-              <div class="progress-bar"
+              <!-- FIXME: Calculate these URLs inside the controller! -->
+              <a class="progress-bar"
+                href='{{class.repo.html_url}}/issues?q=milestone:"{{assn.title}}"+label:"{{label.name}}"'
                 ng-repeat="label in class.labels" ng-style="{
                   width: class.percentOfType(assn.issues, label.name) + '%',
                   backgroundColor: '#' + label.color
-                }" ng-attr-title="{{label.name}}">
+                }" title="{{label.name}}">
                 {{class.percentOfType(assn.issues, label.name).toFixed(0)}}%
                 ({{assn.issues[label.name].length}})
-              </div><!-- .progress-bar -->
-              <div class="progress-bar progress-bar-striped"
+              </a><!-- .progress-bar -->
+              <a class="progress-bar progress-bar-striped"
+                href='{{class.repo.html_url}}/issues?q=milestone:"{{assn.title}}"+no:label'
                 ng-style="{
                   width: class.percentOfType(assn.issues, 'none') + '%',
                   backgroundColor: '#CCC'
                 }">
                   {{class.percentOfType(assn.issues, 'none').toFixed(0)}}%
                   ({{assn.issues['none'].length}})
-              </div>
+              </a>
             </div>
           </li>
         </ul><!-- .list-group -->
