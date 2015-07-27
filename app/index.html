@@ -62,14 +62,16 @@
       </script>
       <script type="text/ng-template" id="views/classes.html">
         <h3> Available Classes </h3>
-        <nav class="nav-repos list-group">
-          <a class="list-group-item" ui-sref="classes.detail({ repo: repo.name })"
-            ng-repeat="repo in org.repos">
-            <h4 class="list-group-item-heading">{{repo.name}}</h4>
+        <ul class="nav-repos list-group">
+          <li class="list-group-item" ng-repeat="repo in org.repos">
+            <nav class="pull-right">
+              <a rel="external" href="{{repo.html_url}}/pulls" class="btn btn-default">Pull Requests</a>
+              <a rel="external" href="{{repo.html_url}}/labels/Attendance" class="btn btn-info">Attendance</a>
+            </nav>
 
-            Lorem ipsum dolor sit amet...
+            <h4> <a ui-sref="classes.detail({ repo: repo.name })">{{repo.name}}</a> </h4>
           </a><!-- .list-group-item -->
-        </nav><!-- .nav-repos -->
+        </ul><!-- .nav-repos -->
       </script><!-- #views/classes.html -->
       <script type="text/ng-template" id="views/class.html">
         <h3> {{class.repo.name}} </h3>
